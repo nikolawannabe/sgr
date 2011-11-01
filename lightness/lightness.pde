@@ -1,11 +1,10 @@
-const int BRIGHTNESSCAP = 255;
+const int BRIGHTNESSCAP = 150;
 const int redPin =  15;
 const int greenPin =  14;
 const int bluePin =  12;
 int rbrightness = 0; 
-int gbrightness = BRIGHTNESSCAP/3; 
-int bbrightness = 2 * (BRIGHTNESSCAP / 3); 
-
+int gbrightness = 0;
+int bbrightness = 0;
 int rincrement = 1;  // brightness increment
 int gincrement = 1;  // brightness increment
 int bincrement = 1;  // brightness increment
@@ -43,6 +42,7 @@ void loop() {
     }
     if (incomingByte == 'R') {
       target = true;
+      lightOn = 1;
       resetIncrements();
       rTarget = BRIGHTNESSCAP;
       gTarget = 0;
@@ -50,6 +50,7 @@ void loop() {
     }
      if (incomingByte == 'G') {
       target = true;
+      lightOn = 1;
       resetIncrements();
       rTarget = 0;
       gTarget = BRIGHTNESSCAP;
@@ -57,6 +58,7 @@ void loop() {
     }
      if (incomingByte == 'B') {
       target = true;
+      lightOn = 1;
       resetIncrements();
       rTarget = 0;
       gTarget = 0;
@@ -112,13 +114,13 @@ void shiftTo(int rMax, int gMax, int bMax)
     gbrightness = gbrightness + gshiftIncrement;  // increment brightness for next loop iteration
     bbrightness = bbrightness + bshiftIncrement;  // increment brightness for next loop iteration
   
-    if (rbrightness < 0 || rbrightness > rMax) {  
+    if (rbrightness < 0 || rbrightness > BRIGHTNESSCAP) {  
       rshiftIncrement = -rshiftIncrement;
     }
-    if (gbrightness < 0 || gbrightness > gMax) {  
+    if (gbrightness < 0 || gbrightness > BRIGHTNESSCAP) {  
         gshiftIncrement = -gshiftIncrement;
       }  
-    if (bbrightness < 0 || bbrightness > bMax) {  
+    if (bbrightness < 0 || bbrightness > BRIGHTNESSCAP) {  
         bshiftIncrement = -bshiftIncrement;
       }
     if (rbrightness == rMax)    
@@ -133,9 +135,6 @@ void shiftTo(int rMax, int gMax, int bMax)
     {
       bshiftIncrement = 0;
     }
-    rbrightness = constrain(rbrightness, 0, BRIGHTNESSCAP);
-    gbrightness = constrain(gbrightness, 0, BRIGHTNESSCAP);
-    bbrightness = constrain(bbrightness, 0, BRIGHTNESSCAP);
     analogWrite(redPin, rbrightness);
     analogWrite(greenPin, gbrightness);
     analogWrite(bluePin, bbrightness);

@@ -28,5 +28,4 @@ time.sleep(1)
 shiftColor('B')
 time.sleep(1)
 
-blinkenLights(numBlinks)
 s.close()
