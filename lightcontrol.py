@@ -37,6 +37,18 @@ def blinkenLights(num):
         s.write('L')
         time.sleep(blinkTime)
 
+def motorGo():
+    s.write('M')
+    time.sleep(blinkTime)
+    s.write('O')
+    time.sleep(blinkTime)
+
+def SmileFrown():
+    s.write('S')
+    time.sleep(blinkTime)
+    s.write('F')
+    time.sleep(blinkTime)
+
 def temperatureCallCycle():
     lastTemp = 10
     while 1:
@@ -47,7 +59,7 @@ def temperatureCallCycle():
             print temp 
             print ' B\n'
             shiftColor('B')
-        elif (temp < 70):
+        elif (temp < 45):
             print temp
             print ' G\n'
             shiftColor('G')
@@ -60,13 +72,21 @@ def temperatureCallCycle():
 
 def ExerciseLEDTests():
     shiftColor('R')
-    time.sleep(1)
+    time.sleep(6)
     shiftColor('G')
-    time.sleep(1)
+    time.sleep(6)
     shiftColor('B')
-    time.sleep(1)
-    
-    blinkenLights(numBlinks)
+    time.sleep(6)
 
-temperatureCallCycle()
+def ExerciseAllTests():
+    for x in range(3):
+      SmileFrown()
+    s.write('S')
+    for x in range(3):
+        motorGo()
+    ExerciseLEDTests()
+    temperatureCallCycle()
+
+#temperatureCallCycle()
+ExerciseAllTests()
 s.close()

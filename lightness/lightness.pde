@@ -1,7 +1,17 @@
 const int BRIGHTNESSCAP = 150;
-const int redPin =  15;
+const int redPin =  12;
 const int greenPin =  14;
-const int bluePin =  12;
+const int bluePin =  15;
+const int motorPin = 16;
+const int anA = 4;
+const int anB = 5;
+const int anC = 6;
+const int anD = 7;
+const int anE = 8;
+const int anF = 9;
+const int anG = 10;
+int smileNum = 4;
+int smileWait = 200;
 int rbrightness = 0; 
 int gbrightness = 0;
 int bbrightness = 0;
@@ -17,6 +27,7 @@ int rTarget;
 int gTarget;
 int bTarget;
 int lightOn = 0;
+boolean smiling = false;
 
 void setup() {
   // initialize serial communication:
@@ -24,6 +35,15 @@ void setup() {
   pinMode(redPin, OUTPUT);
   pinMode(greenPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
+  pinMode(motorPin,OUTPUT);
+  pinMode(anA, OUTPUT);
+  pinMode(anB, OUTPUT);
+  pinMode(anC, OUTPUT);
+  pinMode(anD, OUTPUT);
+  pinMode(anE, OUTPUT);
+  pinMode(anF, OUTPUT);
+  pinMode(anG, OUTPUT);
+
 }
 
 void loop() {
@@ -64,6 +84,22 @@ void loop() {
       gTarget = 0;
       bTarget = BRIGHTNESSCAP;
     }
+    if (incomingByte == 'M')
+    {
+      digitalWrite(motorPin,HIGH);
+    }
+    if (incomingByte == 'O')
+    {
+      digitalWrite(motorPin,LOW);
+    }
+    if (incomingByte == 'S')
+    {
+       Smile();
+    }
+    if (incomingByte == 'F')
+    {
+      Frown();
+    }
   }
   
   if (lightOn == 1)
@@ -101,6 +137,45 @@ void shift()
     analogWrite(greenPin, gbrightness);
     analogWrite(bluePin, bbrightness);
 }
+
+void Run()
+{
+     if (smileWait >= 200)
+     {
+       digitalWrite(smileNum,LOW);
+       smileNum++;
+       if (smileNum > 10)
+       {
+         smileNum = 4;
+       }  
+       digitalWrite(smileNum,HIGH);
+       smileWait = 0;
+     }
+   smileWait++;
+}
+
+void Smile()
+{
+  digitalWrite(anB,LOW);
+  digitalWrite(anF,LOW);
+  digitalWrite(anE,LOW);
+  digitalWrite(anC,HIGH);
+  digitalWrite(anD,HIGH);
+  digitalWrite(anG,HIGH);
+  digitalWrite(anA,HIGH);
+}
+
+void Frown()
+{
+  digitalWrite(anB,LOW);
+  digitalWrite(anF,HIGH);
+  digitalWrite(anE,HIGH);
+  digitalWrite(anC,LOW);
+  digitalWrite(anD,HIGH);
+  digitalWrite(anG,HIGH);
+  digitalWrite(anA,LOW);
+}
+
 
 void resetIncrements()
 {
