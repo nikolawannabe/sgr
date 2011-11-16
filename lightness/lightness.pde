@@ -22,10 +22,15 @@ int rshiftIncrement = rincrement;
 int gshiftIncrement = gincrement;
 int bshiftIncrement = bincrement;
 int incomingByte;      // a variable to read incoming serial data into
-boolean target = false;
+int target = 0;
+int waitTime = 0;
 int rTarget;
 int gTarget;
 int bTarget;
+int rT2;
+int gT2;
+int bT2;
+
 int lightOn = 0;
 boolean smiling = false;
 
@@ -49,109 +54,126 @@ void setup() {
 void loop() {
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
-    if (incomingByte == 'H') {
-       lightOn = 1;
-       target = false;
-      } 
-    if (incomingByte == 'L') {
-      lightOn = 0;
-      target = false;
-      digitalWrite(redPin, LOW);
-      digitalWrite(greenPin,LOW);
-      digitalWrite(bluePin, LOW);
-    }
-    if (incomingByte == 'R') {
-      target = true;
-      lightOn = 1;
-      resetIncrements();
-      rTarget = BRIGHTNESSCAP;
-      gTarget = 0;
-      bTarget = 0;
-    }
-     if (incomingByte == 'G') {
-      target = true;
-      lightOn = 1;
-      resetIncrements();
-      rTarget = 0;
-      gTarget = BRIGHTNESSCAP;
-      bTarget = 0;
-    }
-     if (incomingByte == 'B') {
-      target = true;
-      lightOn = 1;
-      resetIncrements();
-      rTarget = 0;
-      gTarget = 0;
-      bTarget = BRIGHTNESSCAP;
-    }
-    if (incomingByte == 'M')
+    switch (incomingByte)
     {
-      digitalWrite(motorPin,HIGH);
-    }
-    if (incomingByte == 'O')
-    {
-      digitalWrite(motorPin,LOW);
-    }
-    if (incomingByte == 'S')
-    {
-       Smile();
-    }
-    if (incomingByte == 'F')
-    {
-      Frown();
+      case 'H':
+        lightOn = 1;
+        target = 1;
+        break;
+      case 'L':
+        lightOn = 0;
+        target = 1;
+        digitalWrite(redPin, LOW);
+        digitalWrite(greenPin,LOW);
+        digitalWrite(bluePin, LOW);
+        break;
+      case 'R':
+        target = 1;
+        lightOn = 1;
+        resetIncrements();
+        rTarget = BRIGHTNESSCAP;
+        gTarget = 0;
+        bTarget = 0;
+        break;
+      case 'G':
+        target = 1;
+        lightOn = 1;
+        resetIncrements();
+        rTarget = 0;
+        gTarget = BRIGHTNESSCAP;
+        bTarget = 0;
+        break;
+      case 'B':
+        target = 1;
+        lightOn = 1;
+        resetIncrements();
+        rTarget = 0;
+        gTarget = 0;
+        bTarget = BRIGHTNESSCAP;
+        break;
+      case 'M':
+        digitalWrite(motorPin,HIGH);
+        break;
+      case 'O':
+        digitalWrite(motorPin,LOW);
+        break;
+      case 'S':
+        Smile();
+        break;
+      case 'F':
+        Frown();
+        break;
+      case 'N':
+        NoExpression();
+        break;
+      case 'D':
+        lightOn = 1;
+        rTarget = 0;
+        gTarget = 0;
+        bTarget = BRIGHTNESSCAP;
+        rT2 = BRIGHTNESSCAP;
+        gT2 = BRIGHTNESSCAP;
+        bT2 = BRIGHTNESSCAP;
+        // multiple targets
+        target = 2;
+        break;
     }
   }
-  
+
   if (lightOn == 1)
   {
     if (target)
     {
-      shiftTo(rTarget, gTarget, bTarget);
-    } else
+      if (target == 1)
+        shiftTo(rTarget, gTarget, bTarget);
+      else
+        shiftBetween(rTarget, gTarget, bTarget, rT2, gT2, bT2);
+    } 
+    else
     {
       shift();
     }
   }
-   delay(20);  // wait for 20 milliseconds to see the dimming effect
+  delay(20);  // wait for 20 milliseconds to see the dimming effect
 }
 
 void shift()
 {
-    rbrightness = rbrightness + rincrement;  // increment brightness for next loop iteration
-    gbrightness = gbrightness + gincrement;  // increment brightness for next loop iteration
-    bbrightness = bbrightness + bincrement;  // increment brightness for next loop iteration
-  
-    if (rbrightness <= 0 || rbrightness >= BRIGHTNESSCAP) {  
-      rincrement = -rincrement;
-    }
-    if (gbrightness <= 0 || gbrightness >= BRIGHTNESSCAP) {  
-        gincrement = -gincrement;
-      }  
-    if (bbrightness <= 0 || bbrightness >= BRIGHTNESSCAP) {  
-        bincrement = -bincrement;
-      }    
-    rbrightness = constrain(rbrightness, 0, BRIGHTNESSCAP);
-    gbrightness = constrain(gbrightness, 0, BRIGHTNESSCAP);
-    bbrightness = constrain(bbrightness, 0, BRIGHTNESSCAP);
-    analogWrite(redPin, rbrightness);
-    analogWrite(greenPin, gbrightness);
-    analogWrite(bluePin, bbrightness);
+  rbrightness = rbrightness + rincrement;  // increment brightness for next loop iteration
+  gbrightness = gbrightness + gincrement;  // increment brightness for next loop iteration
+  bbrightness = bbrightness + bincrement;  // increment brightness for next loop iteration
+
+  if (rbrightness <= 0 || rbrightness >= BRIGHTNESSCAP) {  
+    rincrement = -rincrement;
+  }
+  if (gbrightness <= 0 || gbrightness >= BRIGHTNESSCAP) {  
+    gincrement = -gincrement;
+  }  
+  if (bbrightness <= 0 || bbrightness >= BRIGHTNESSCAP) {  
+    bincrement = -bincrement;
+  }    
+  rbrightness = constrain(rbrightness, 0, BRIGHTNESSCAP);
+  gbrightness = constrain(gbrightness, 0, BRIGHTNESSCAP);
+  bbrightness = constrain(bbrightness, 0, BRIGHTNESSCAP);
+  analogWrite(redPin, rbrightness);
+  analogWrite(greenPin, gbrightness);
+  analogWrite(bluePin, bbrightness);
 }
 
 void Run()
 {
-     if (smileWait >= 200)
-     {
-       digitalWrite(smileNum,LOW);
-       smileNum++;
-       if (smileNum > 10)
-       {
-         smileNum = 4;
-       }  
-       digitalWrite(smileNum,HIGH);
-       smileWait = 0;
-     }
-   smileWait++;
+  if (smileWait >= 200)
+  {
+    digitalWrite(smileNum,LOW);
+    smileNum++;
+    if (smileNum > 10)
+    {
+      smileNum = 4;
+    }  
+    digitalWrite(smileNum,HIGH);
+    smileWait = 0;
+  }
+  smileWait++;
 }
 
 void Smile()
@@ -176,6 +198,14 @@ void Frown()
   digitalWrite(anA,LOW);
 }
 
+void NoExpression()
+{
+  for (int i = 0; i <= 10; i++)
+  {
+    digitalWrite(i,LOW);
+  }
+}
+
 
 void resetIncrements()
 {
@@ -183,35 +213,100 @@ void resetIncrements()
   gshiftIncrement = 1;
   bshiftIncrement = 1;
 }
+
 void shiftTo(int rMax, int gMax, int bMax)
 {
-    rbrightness = rbrightness + rshiftIncrement;  // increment brightness for next loop iteration
-    gbrightness = gbrightness + gshiftIncrement;  // increment brightness for next loop iteration
-    bbrightness = bbrightness + bshiftIncrement;  // increment brightness for next loop iteration
+  rbrightness = rbrightness + rshiftIncrement;  // increment brightness for next loop iteration
+  gbrightness = gbrightness + gshiftIncrement;  // increment brightness for next loop iteration
+  bbrightness = bbrightness + bshiftIncrement;  // increment brightness for next loop iteration
+
+  if (rbrightness < 0 || rbrightness > BRIGHTNESSCAP) {  
+    rshiftIncrement = -rshiftIncrement;
+  }
+  if (gbrightness < 0 || gbrightness > BRIGHTNESSCAP) {  
+    gshiftIncrement = -gshiftIncrement;
+  }  
+  if (bbrightness < 0 || bbrightness > BRIGHTNESSCAP) {  
+    bshiftIncrement = -bshiftIncrement;
+  }
+  if (rbrightness == rMax)    
+  {
+    rshiftIncrement = 0;
+  }
+  if (gbrightness == gMax)    
+  {
+    gshiftIncrement = 0;
+  }
+  if (bbrightness == bMax)    
+  {
+    bshiftIncrement = 0;
+  }
+  analogWrite(redPin, rbrightness);
+  analogWrite(greenPin, gbrightness);
+  analogWrite(bluePin, bbrightness);
+}
+
+void shiftBetween(int rMax, int gMax, int bMax, int r2Max, int g2Max, int b2Max)
+{
+  rbrightness = rbrightness + rshiftIncrement;  // increment brightness for next loop iteration
+  gbrightness = gbrightness + gshiftIncrement;  // increment brightness for next loop iteration
+  bbrightness = bbrightness + bshiftIncrement;  // increment brightness for next loop iteration
+
+  if (rbrightness < 0 || rbrightness > BRIGHTNESSCAP) 
+  {  
+    rshiftIncrement = -rshiftIncrement;
+  }
+  if (gbrightness < 0 || gbrightness > BRIGHTNESSCAP) 
+  {  
+    gshiftIncrement = -gshiftIncrement;
+  }  
+  if (bbrightness < 0 || bbrightness > BRIGHTNESSCAP) 
+  {  
+    bshiftIncrement = -bshiftIncrement;
+  }
+  if (rbrightness == rMax)    
+  {
+    rshiftIncrement = 0;
+  }
+  if (gbrightness == gMax)    
+  {
+    gshiftIncrement = 0;
+  }
+  if (bbrightness == bMax)    
+  {
+    bshiftIncrement = 0;
+  }
   
-    if (rbrightness < 0 || rbrightness > BRIGHTNESSCAP) {  
-      rshiftIncrement = -rshiftIncrement;
-    }
-    if (gbrightness < 0 || gbrightness > BRIGHTNESSCAP) {  
-        gshiftIncrement = -gshiftIncrement;
-      }  
-    if (bbrightness < 0 || bbrightness > BRIGHTNESSCAP) {  
-        bshiftIncrement = -bshiftIncrement;
-      }
-    if (rbrightness == rMax)    
+  if ((bshiftIncrement == 0) && (gshiftIncrement == 0) && (rshiftIncrement == 0))
+  {
+    if (waitTime == 200)
     {
-      rshiftIncrement = 0;
-    }
-    if (gbrightness == gMax)    
+      if (r2Max > rMax) rshiftIncrement = 1; else rshiftIncrement = -1;
+      if (g2Max > gMax) gshiftIncrement = 1; else gshiftIncrement = -1;
+      if (b2Max > bMax) bshiftIncrement = 1; else bshiftIncrement = -1;
+      if (r2Max == rMax) rshiftIncrement = 0;
+      if (g2Max == gMax) gshiftIncrement = 0;
+      if (b2Max == bMax) bshiftIncrement = 0;
+      int temp;
+      temp = rTarget;
+      rTarget = rT2;
+      rT2 = temp;
+      temp = gTarget;
+      gTarget = gT2;
+      gT2 = temp;
+      temp = bTarget;
+      bTarget = bT2;
+      bT2 = temp;
+      waitTime = 0;
+    } else
     {
-      gshiftIncrement = 0;
+      waitTime++;
     }
-    if (bbrightness == bMax)    
-    {
-      bshiftIncrement = 0;
-    }
+  } else
+  {  
     analogWrite(redPin, rbrightness);
     analogWrite(greenPin, gbrightness);
     analogWrite(bluePin, bbrightness);
+  }
 }
 

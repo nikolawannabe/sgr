@@ -6,7 +6,6 @@ import  pywapi
 import string
 
 blinkTime = 1
-print sys.argv.count
 if len(sys.argv) > 1:
     callInterval = int(sys.argv[1])
 else:
@@ -49,12 +48,20 @@ def SmileFrown():
     s.write('F')
     time.sleep(blinkTime)
 
+def NoExpression():
+    s.write('N')
+
+
 def temperatureCallCycle():
     lastTemp = 10
     while 1:
       noaa_result = pywapi.get_weather_from_noaa(weatherStation)
       temp = Decimal(noaa_result['temp_f'])
       if lastTemp != temp:
+        if (temp <= 32):
+            print temp
+            print ' Freezing! Sent D.'
+            shiftColor('D')
         if (temp < 40):
             print temp 
             print ' B\n'
@@ -85,6 +92,7 @@ def ExerciseAllTests():
     for x in range(3):
         motorGo()
     ExerciseLEDTests()
+    NoExpression()
     temperatureCallCycle()
 
 #temperatureCallCycle()
