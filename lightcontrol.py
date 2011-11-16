@@ -62,7 +62,7 @@ def temperatureCallCycle():
             print temp
             print ' Freezing! Sent D.'
             shiftColor('D')
-        if (temp < 40):
+        elif  (temp < 40):
             print temp 
             print ' B\n'
             shiftColor('B')
