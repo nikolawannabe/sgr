@@ -1,6 +1,7 @@
 from decimal import *
 import serial
 import time
+from datetime import datetime
 import sys
 import  pywapi
 import string
@@ -55,27 +56,31 @@ def NoExpression():
 def temperatureCallCycle():
     lastTemp = 10
     while 1:
-      noaa_result = pywapi.get_weather_from_noaa(weatherStation)
-      temp = Decimal(noaa_result['temp_f'])
-      if lastTemp != temp:
-        if (temp <= 32):
-            print temp
-            print ' Freezing! Sent D.'
-            shiftColor('D')
-        elif  (temp < 40):
-            print temp 
-            print ' B\n'
-            shiftColor('B')
-        elif (temp < 45):
-            print temp
-            print ' G\n'
-            shiftColor('G')
-        else:
-            print temp
-            print ' R\n'
-            shiftColor('R')
-      lastTemp = temp
-      time.sleep(callInterval)
+      try:
+        noaa_result = pywapi.get_weather_from_noaa(weatherStation)
+        temp = Decimal(noaa_result['temp_f'])
+        if lastTemp != temp:
+          print datetime.now().ctime(), 
+          if (temp <= 32):
+              print temp
+              print ' Freezing! Sent D.'
+              shiftColor('D')
+          elif  (temp < 40):
+              print temp 
+              print ' B\n'
+              shiftColor('B')
+          elif (temp < 45):
+              print temp
+              print ' G\n'
+              shiftColor('G')
+          else:
+              print temp
+              print ' R\n'
+              shiftColor('R')
+        lastTemp = temp
+        time.sleep(callInterval)
+      except:
+          print "Unable to connect to the weather station."
 
 def ExerciseLEDTests():
     shiftColor('R')
