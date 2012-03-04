@@ -10,12 +10,13 @@ blinkTime = 1
 if len(sys.argv) > 1:
     callInterval = int(sys.argv[1])
 else:
-    callInterval = 10
+    callInterval = 30*60
 
 if len(sys.argv) > 2:
     numBlinks = int(sys.argv[2])
 else:
     numBlinks = 20
+
 if len(sys.argv) > 3:
     weatherStation = sys.argv[3]
 else:
@@ -52,11 +53,25 @@ def SmileFrown():
 def NoExpression():
     s.write('N')
 
+def GetWeatherCondition(prevCondition):
+    weatherData = pywapi.get_weather_from_yahoo(98052,'')
+    weatherCode = int(weatherData['condition']['code'])
+    if weatherCode in [0,1,2,3,4,5,6,7,8,10,13,14,15,16,18,22,25,36,41,42,43,45,46]:
+        s.write('A')
+        print "Severe weather condition detected: "
+        print weatherData['condition']['text']
+    else:
+        if prevCondition != weatherCode:
+          s.write('C')
+          print "Weather: " + weatherData['condition']['text']
+    return weatherCode
 
 def temperatureCallCycle():
     lastTemp = 10
+    weatherCode = 0
     while 1:
       try:
+        weatherCode = GetWeatherCondition(weatherCode)
         noaa_result = pywapi.get_weather_from_noaa(weatherStation)
         temp = Decimal(noaa_result['temp_f'])
         if lastTemp != temp:
@@ -79,8 +94,11 @@ def temperatureCallCycle():
               shiftColor('R')
         lastTemp = temp
         time.sleep(callInterval)
+      except (KeyboardInterrupt, SystemExit):
+        print 'Quitting...'
+        sys.exit()
       except:
-          print "Unable to connect to the weather station."
+        print "Unable to connect to the weather station."
 
 def ExerciseLEDTests():
     shiftColor('R')
@@ -100,6 +118,5 @@ def ExerciseAllTests():
     NoExpression()
     temperatureCallCycle()
 
-#temperatureCallCycle()
-ExerciseAllTests()
+temperatureCallCycle()
 s.close()

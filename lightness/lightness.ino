@@ -1,7 +1,8 @@
-const int BRIGHTNESSCAP = 150;
-const int redPin =  12;
-const int greenPin =  14;
-const int bluePin =  15;
+const int BRIGHTNESSCAP = 75;
+const int redPin =  9;
+const int greenPin =  10;
+const int bluePin =  4;
+int alertPin = 5;
 const int motorPin = 16;
 const int anA = 4;
 const int anB = 5;
@@ -48,6 +49,7 @@ void setup() {
   pinMode(anE, OUTPUT);
   pinMode(anF, OUTPUT);
   pinMode(anG, OUTPUT);
+  pinMode(alertPin, OUTPUT);
 
 }
 
@@ -56,6 +58,12 @@ void loop() {
     incomingByte = Serial.read();
     switch (incomingByte)
     {
+      case 'A':
+        digitalWrite(alertPin,HIGH);
+        break;
+      case 'C':
+        digitalWrite(alertPin,LOW);
+        break;
       case 'H':
         lightOn = 1;
         target = 1;
@@ -309,4 +317,5 @@ void shiftBetween(int rMax, int gMax, int bMax, int r2Max, int g2Max, int b2Max)
     analogWrite(bluePin, bbrightness);
   }
 }
+
 
